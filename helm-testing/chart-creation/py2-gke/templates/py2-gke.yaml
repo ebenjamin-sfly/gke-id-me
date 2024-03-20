@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "py2-gke.fullname" . }}
+  #name: {{ include "py2-gke.fullname" . }}-py2-gke
+  labels:
+    app: py2-gke
+  {{- include "py2-gke.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.py2Gke.type }}
+  selector:
+    app: py2-gke
+  {{- include "py2-gke.selectorLabels" . | nindent 4 }}
+  ports:
+	{{- .Values.py2Gke.ports | toYaml | nindent 2 -}}

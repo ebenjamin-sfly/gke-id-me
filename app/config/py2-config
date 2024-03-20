@@ -1,0 +1,2 @@
+MY_ENV="fromConfigfile"
+MY_ENV2="fromConfigfile"

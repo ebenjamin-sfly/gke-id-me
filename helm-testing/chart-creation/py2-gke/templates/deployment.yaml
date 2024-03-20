@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "py2-gke.fullname" . }}
+  labels:
+    app: py2-gke
+  {{- include "py2-gke.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.py2Gke.replicas }}
+  selector:
+    matchLabels:
+      app: py2-gke
+    {{- include "py2-gke.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: py2-gke
+      {{- include "py2-gke.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - env:
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.py2Gke.py2Gke.image.repository }}:{{ .Values.py2Gke.py2Gke.image.tag
+          | default .Chart.AppVersion }}
+        name: py2-gke
+        ports:
+        - containerPort: 5000
+          name: app-port
+        resources: {}
+      serviceAccountName: eb-sa

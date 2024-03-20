@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "py2.fullname" . }}
+  labels:
+    app: py2
+  {{- include "py2.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.py2.replicas }}
+  selector:
+    matchLabels:
+      app: py2
+    {{- include "py2.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: py2
+      {{- include "py2.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - env:
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.py2.py2.image.repository }}:{{ .Values.py2.py2.image.tag | default
+          .Chart.AppVersion }}
+        name: py2
+        ports:
+          - containerPort: 5000
+            name: app-port
+#        volumeMounts:
+#          - name: "config-vol"
+#            mountPath: /config
+#          - name: "index-vol"
+#            mountPath: /custompath
+#        resources: {}
+#      volumes:
+#        - name: "config-vol"
+#          configMap:
+#            name: "py2-config"
+#        - name: "index-vol"
+#          configMap:
+#            name: "py2-index"

@@ -1,0 +1,28 @@
+kubernetesClusterDomain: cluster.local
+py2:
+  ports:
+  - name: svc-port
+    port: 80
+    protocol: TCP
+    targetPort: 5001
+  py2:
+    image:
+      repository: public.ecr.aws/n2p0e5s9/py-aws-build # Public repository
+#      repository: 329082085800.dkr.ecr.us-east-2.amazonaws.com/py-aws-build
+      tag: latest
+  replicas: 2
+  type: LoadBalancer
+
+#py2Config:
+#  configCfg: |-
+#    MY_ENV="MY_ENV not used var dev"
+#    MY_ENV2="alpha"
+#
+#indexHtmlConfigmap:
+#  indexHtml: |-
+#    MY_INDEX="<html> <h1>Hi! This is an edited configmap Index file 17:55 PST</h1> </html"
+
+    
+
+    
+

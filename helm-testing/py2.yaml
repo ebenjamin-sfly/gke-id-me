@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: py2
+  labels:
+    app: py2
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: py2
+  template:
+    metadata:
+      labels:
+        app: py2
+    spec:
+      serviceAccountName: "eb-sa"
+      containers:
+        - name: py2
+#          image: 329082085800.dkr.ecr.us-east-2.amazonaws.com/py-aws-build:latest
+          image: us-central1-docker.pkg.dev/iconic-star-416704/py-gce-build/py-gce-build:latest
+          ports:
+            - name: app-port
+              containerPort: 5000
+---
+apiVersion: "v1"
+kind: "Service"
+metadata:
+  name: py2
+  namespace: "default"
+  labels:
+    app: py2
+spec:
+  externalTrafficPolicy: Local
+  ports:
+  - name: svc-port
+    port: 80
+    protocol: "TCP"
+    targetPort: 5000
+  selector:
+    app: py2
+  type: LoadBalancer
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: py2
+  annotations:
+#    alb.ingress.kubernetes.io/load-balancer-name: py2-ingress
+    cloud.google.com/load-balancer-type: External
+
+spec:
+  ingressClassName: id-app
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: py2
+                port:
+                  name: svc-port

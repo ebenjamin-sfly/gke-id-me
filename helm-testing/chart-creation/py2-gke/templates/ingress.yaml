@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "py2-gke.fullname" . }}
+  labels:
+  {{- include "py2-gke.labels" . | nindent 4 }}
+  annotations:
+    cloud.google.com/load-balancer-type: External
+spec:
+  ingressClassName: id-app
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: '{{ include "py2-gke.fullname" . }}'
+            port:
+              name: svc-port
+        path: /
+        pathType: Prefix

@@ -1,0 +1,79 @@
+---
+apiVersion: mongodbcommunity.mongodb.com/v1
+kind: MongoDBCommunity
+metadata:
+  name: my-mongodb
+  namespace: mongodb
+spec:
+#  members: 1
+  members: 2
+  type: ReplicaSet
+  version: "5.0.5"
+  security:
+    authentication:
+      modes:
+      - SCRAM
+  users:
+  - name: admin-user
+    db: admin
+    passwordSecretRef:
+      name: admin-user-password
+    roles:
+    - name: clusterAdmin
+      db: admin
+    - name: userAdminAnyDatabase
+      db: admin
+    scramCredentialsSecretName: my-scram
+#  # EB added the following four lines.
+  replicaSetHorizons:
+    - horizon: my-mongodb-0.devopsbyexample.io:27017
+    - horizon: my-mongodb-1.devopsbyexample.io:27017
+    - horizon: my-mongodb-2.devopsbyexample.io:27017
+  security:
+    tls:
+      enabled: false
+#      enabled: true
+      certificateKeySecretRef:
+        name: mongodb-key-pair
+      caCertificateSecretRef:
+        name: mongodb-key-pair
+      # optional: true
+    authentication:
+      modes:
+      - SCRAM
+  additionalMongodConfig:
+    storage.wiredTiger.engineConfig.journalCompressor: zlib
+  statefulSet:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: mongod
+            resources:
+              limits:
+                cpu: "1"
+#                memory: 2Gi
+                memory: 1Gi
+              requests:
+                cpu: 500m
+                memory: 1Gi
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - my-mongodb
+                topologyKey: "kubernetes.io/hostname"
+      volumeClaimTemplates:
+      - metadata:
+          name: data-volume
+        spec:
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: 10G
+#              storage: 40G
