@@ -4,7 +4,7 @@ ADD . /flask-app
 WORKDIR /flask-app
 RUN apt-get update -y
 RUN apt-get install -y python3 pip curl telnet vim
-RUN pip install -r requirements.txt
+RUN pip install -r ./requirements.txt
 ENV MY_ENV=${MY_ENV:-fromDockerfile}
 ENV MY_ENV2=${MY_ENV2:-fromDockerfile}
 CMD [ "/bin/sh", "-c", "export"]
