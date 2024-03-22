@@ -25,7 +25,5 @@ jobs:
         GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
       run: |
         gcloud auth configure-docker us-central1-docker.pkg.dev
-#        docker build -f app/Dockerfile -t py-gce-build .
         docker build . -t us-central1-docker.pkg.dev/$GOOGLE_PROJECT/py-gce-build/py-gce-build:latest
-#        docker tag py-gce-build:latest us-central1-docker.pkg.dev/$GOOGLE_PROJECT/py-gce-build/py-gce-build:latest
         docker push us-central1-docker.pkg.dev/$GOOGLE_PROJECT/py-gce-build/py-gce-build:latest
