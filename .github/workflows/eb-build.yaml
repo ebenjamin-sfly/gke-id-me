@@ -27,3 +27,10 @@ jobs:
         gcloud auth configure-docker us-central1-docker.pkg.dev
         docker build -f app/Dockerfile -t us-central1-docker.pkg.dev/$GOOGLE_PROJECT/py-gce-build/py-gce-build:latest .
         docker push us-central1-docker.pkg.dev/$GOOGLE_PROJECT/py-gce-build/py-gce-build:latest
+
+    - name: deploy to gke
+      env:
+        GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
+      run: |
+        gcloud container clusters get-credentials eb-cluster --zone us-central1-a --project iconic-star-416704
+        kubectl apply -f helm-testing/py2.yaml
