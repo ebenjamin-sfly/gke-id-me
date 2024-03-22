@@ -1,4 +1,4 @@
-name: Deploy Nginx
+name: Build app image
 
 on:
   push:
