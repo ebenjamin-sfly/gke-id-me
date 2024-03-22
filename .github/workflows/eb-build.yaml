@@ -11,10 +11,10 @@ jobs:
     steps:
 
     - name: code checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: install the gcloud cli
-      uses: google-github-actions/setup-gcloud@v0
+      uses: google-github-actions/setup-gcloud@v2
       with:
         project_id: ${{ secrets.GOOGLE_PROJECT }}
         service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
@@ -32,5 +32,6 @@ jobs:
       env:
         GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
       run: |
-        gcloud container clusters get-credentials eb-cluster --zone us-central1-a --project iconic-star-416704
+        
+        gcloud container clusters get-credentials eb-cluster --zone us-central1-a --project $GOOGLE_PROJECT
         kubectl apply -f helm-testing/py2.yaml

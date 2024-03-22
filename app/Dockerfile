@@ -8,5 +8,4 @@ RUN pip install -r app/requirements.txt
 ENV MY_ENV=${MY_ENV:-fromDockerfile}
 ENV MY_ENV2=${MY_ENV2:-fromDockerfile}
 CMD [ "/bin/sh", "-c", "export"]
-RUN pip install -r app/requirements.txt
 CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
