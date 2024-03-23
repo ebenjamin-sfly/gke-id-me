@@ -34,17 +34,17 @@ jobs:
 
   # Direct Workload Identity Federation
   #
-  direct_workload_identity_federation:
-    if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name }}
-    name: 'direct_workload_identity_federation'
-    runs-on: '${{ matrix.os }}'
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - 'ubuntu-latest'
-#          - 'windows-latest'
-#          - 'macos-latest'
+      direct_workload_identity_federation:
+        if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name }}
+        name: 'direct_workload_identity_federation'
+        runs-on: '${{ matrix.os }}'
+        strategy:
+          fail-fast: false
+          matrix:
+            os:
+              - 'ubuntu-latest'
+    #          - 'windows-latest'
+    #          - 'macos-latest'
 
     permissions:
       id-token: 'write'
