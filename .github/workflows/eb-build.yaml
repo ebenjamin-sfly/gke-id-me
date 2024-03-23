@@ -9,30 +9,26 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-
-    - name: code checkout
-      uses: actions/checkout@v2
-
-    - name: install the gcloud cli
-      uses: google-github-actions/setup-gcloud@v0
+    - id: auth
+      uses: google-github-actions/auth@v0.4.0
       with:
-        project_id: ${{ secrets.GOOGLE_PROJECT }}
-        service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-        install_components: 'gke-gcloud-auth-plugin'
-        export_default_credentials: true
+#        workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
+        workload_identity_provider: 'projects/721141404780/locations/global/workloadIdentityPools/github/providers/my-repo'
+        service_account: 'service-a@iconic-star-416704.iam.gserviceaccount.com'
 
-    - name: build and push the docker image
-      env:
-        GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
-      run: |
-        gcloud auth configure-docker us-central1-docker.pkg.dev
-        docker build -f app/Dockerfile -t us-central1-docker.pkg.dev/$GOOGLE_PROJECT/py-gce-build/py-gce-build:latest .
-        docker push us-central1-docker.pkg.dev/$GOOGLE_PROJECT/py-gce-build/py-gce-build:latest
+    - id: get-gke-credentials
+      uses: google-github-actions/get-gke-credentials@v0.4.0
+      with:
+        cluster_name: eb-cluster
+        location: us-central1-a
 
-    - name: deploy to gke
-      env:
-        GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
-      run: |
+    - id: get-pods
+      run: kubectl get pods
 
-        gcloud container clusters get-credentials eb-cluster --zone us-central1-a --project $GOOGLE_PROJECT
-        kubectl apply -f helm-testing/py2.yaml
+#    - name: deploy to gke
+#      env:
+#        GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
+#      run: |
+#
+#        gcloud container clusters get-credentials eb-cluster --zone us-central1-a --project $GOOGLE_PROJECT
+#        kubectl apply -f helm-testing/py2.yaml
