@@ -13,13 +13,6 @@ jobs:
     - name: code checkout
       uses: actions/checkout@v2
 
-#    - name: Auth gcloud -EB
-#      uses: google-github-actions/auth@v2
-#      with:
-#        project_id: ${{ secrets.GOOGLE_PROJECT }}
-#        service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-#        export_default_credentials: true
-
     - name: install the gcloud cli
       uses: google-github-actions/setup-gcloud@v0
       with:
@@ -35,10 +28,10 @@ jobs:
         docker build -f app/Dockerfile -t us-central1-docker.pkg.dev/$GOOGLE_PROJECT/py-gce-build/py-gce-build:latest .
         docker push us-central1-docker.pkg.dev/$GOOGLE_PROJECT/py-gce-build/py-gce-build:latest
 
-#    - name: deploy to gke
-#      env:
-#        GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
-#      run: |
-#
-#        gcloud container clusters get-credentials eb-cluster --zone us-central1-a --project $GOOGLE_PROJECT
-#        kubectl apply -f helm-testing/py2.yaml
+    - name: deploy to gke
+      env:
+        GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
+      run: |
+
+        gcloud container clusters get-credentials eb-cluster --zone us-central1-a --project $GOOGLE_PROJECT
+        kubectl apply -f helm-testing/py2.yaml
