@@ -28,26 +28,26 @@ jobs:
     steps:
       - uses: 'actions/checkout@v4'
 
-#      - uses: 'actions/setup-node@v4'
-#        with:
-#          node-version: '20.x'
+      - uses: 'actions/setup-node@v4'
+        with:
+          node-version: '20.x'
 
-  # Direct Workload Identity Federation
-  #
-      direct_workload_identity_federation:
-        if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name }}
-        name: 'direct_workload_identity_federation'
-        runs-on: '${{ matrix.os }}'
-        strategy:
-          fail-fast: false
-          matrix:
-            os:
-              - 'ubuntu-latest'
-    #          - 'windows-latest'
-    #          - 'macos-latest'
+        # Direct Workload Identity Federation
+        #
+  direct_workload_identity_federation:
+    if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name }}
+    name: 'direct_workload_identity_federation'
+    runs-on: '${{ matrix.os }}'
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - 'ubuntu-latest'
+#          - 'windows-latest'
+#          - 'macos-latest'
 
-    permissions:
-      id-token: 'write'
+  permissions:
+    id-token: 'write'
 
     steps:
       - uses: 'actions/checkout@v4'
@@ -87,6 +87,6 @@ jobs:
       env:
         GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
       run: |
-
+  
         gcloud container clusters get-credentials eb-cluster --zone us-central1-a --project $GOOGLE_PROJECT
         kubectl apply -f helm-testing/py2.yaml
