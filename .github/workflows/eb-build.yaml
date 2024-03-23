@@ -31,18 +31,7 @@ jobs:
 #      - uses: 'actions/setup-node@v4'
 #        with:
 #          node-version: '20.x'
-#
-#      - name: 'npm build'
-#        run: 'npm ci && npm run build'
-#
-#      - name: 'npm lint'
-#        run: 'npm run lint'
-#
-#      - name: 'npm test'
-#        run: 'npm run test'
 
-
-  #
   # Direct Workload Identity Federation
   #
   direct_workload_identity_federation:
