@@ -50,43 +50,43 @@ jobs:
       id-token: 'write'
 
     steps:
-      - uses: 'actions/checkout@v4'
+    - uses: 'actions/checkout@v4'
 
-      - uses: 'actions/setup-node@v4'
-        with:
-          node-version: '20.x'
-#
-#      - name: 'npm build'
-#        run: 'npm ci && npm run build'
+    - uses: 'actions/setup-node@v4'
+      with:
+        node-version: '20.x'
+  #
+  #      - name: 'npm build'
+  #        run: 'npm ci && npm run build'
 
-      - id: 'auth-default'
-        name: 'auth-default'
-        uses: './'
-        with:
-          project_id: '${{ secrets.GOOGLE_PROJECT }}'
-          workload_identity_provider: '${{ secrets.WIF_PROVIDER_NAME }}'
+    - id: 'auth-default'
+      name: 'auth-default'
+      uses: './'
+      with:
+        project_id: '${{ secrets.GOOGLE_PROJECT }}'
+        workload_identity_provider: '${{ secrets.WIF_PROVIDER_NAME }}'
 
-      - id: 'oauth-federated-token'
-        name: 'oauth-federated-token'
-        run: |-
-          curl https://secretmanager.googleapis.com/v1/projects/${{ steps.auth-default.outputs.project_id }}/secrets/${{ vars.SECRET_NAME }}/versions/latest:access \
-            --silent \
-            --show-error \
-            --fail \
-            --header "Authorization: Bearer ${{ steps.auth-default.outputs.auth_token }}"
+    - id: 'oauth-federated-token'
+      name: 'oauth-federated-token'
+      run: |-
+        curl https://secretmanager.googleapis.com/v1/projects/${{ steps.auth-default.outputs.project_id }}/secrets/${{ vars.SECRET_NAME }}/versions/latest:access \
+          --silent \
+          --show-error \
+          --fail \
+          --header "Authorization: Bearer ${{ steps.auth-default.outputs.auth_token }}"
 
-      - uses: 'google-github-actions/setup-gcloud@v2'
-        with:
-          version: '>= 363.0.0'
+    - uses: 'google-github-actions/setup-gcloud@v2'
+      with:
+        version: '>= 363.0.0'
 
-      - name: 'gcloud'
-        run: |-
-          gcloud secrets versions access "latest" --secret "${{ vars.SECRET_NAME }}"
+    - name: 'gcloud'
+      run: |-
+        gcloud secrets versions access "latest" --secret "${{ vars.SECRET_NAME }}"
 
-    - name: deploy to gke
-      env:
-        GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
-      run: |
-  
-        gcloud container clusters get-credentials eb-cluster --zone us-central1-a --project $GOOGLE_PROJECT
-        kubectl apply -f helm-testing/py2.yaml
+  - name: deploy to gke
+    env:
+      GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
+    run: |
+
+      gcloud container clusters get-credentials eb-cluster --zone us-central1-a --project $GOOGLE_PROJECT
+      kubectl apply -f helm-testing/py2.yaml
