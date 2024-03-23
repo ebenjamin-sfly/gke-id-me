@@ -54,8 +54,8 @@ jobs:
       matrix:
         os:
           - 'ubuntu-latest'
-          - 'windows-latest'
-          - 'macos-latest'
+#          - 'windows-latest'
+#          - 'macos-latest'
 
     permissions:
       id-token: 'write'
