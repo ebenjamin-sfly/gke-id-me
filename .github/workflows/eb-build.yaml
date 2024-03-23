@@ -1,29 +1,98 @@
-name: Build image and deploy
+#name: Build image and deploy
+name: 'Test'
 
 on:
   push:
     branches:
-    - 'master'
+      - 'master'
+      - 'release/**/*'
+  pull_request:
+    branches:
+      - 'main'
+      - 'release/**/*'
+  workflow_dispatch:
+
+concurrency:
+  group: '${{ github.workflow }}-${{ github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: 'bash'
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+  unit:
+    name: 'unit'
+    runs-on: 'ubuntu-latest'
+
     steps:
-    - id: auth
-      uses: google-github-actions/auth@v0.4.0
-      with:
-#        workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
-        workload_identity_provider: 'projects/721141404780/locations/global/workloadIdentityPools/github/providers/my-repo'
-        service_account: 'service-a@iconic-star-416704.iam.gserviceaccount.com'
+      - uses: 'actions/checkout@v4'
 
-    - id: get-gke-credentials
-      uses: google-github-actions/get-gke-credentials@v0.4.0
-      with:
-        cluster_name: eb-cluster
-        location: us-central1-a
+#      - uses: 'actions/setup-node@v4'
+#        with:
+#          node-version: '20.x'
+#
+#      - name: 'npm build'
+#        run: 'npm ci && npm run build'
+#
+#      - name: 'npm lint'
+#        run: 'npm run lint'
+#
+#      - name: 'npm test'
+#        run: 'npm run test'
 
-    - id: get-pods
-      run: kubectl get pods
+
+  #
+  # Direct Workload Identity Federation
+  #
+  direct_workload_identity_federation:
+    if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name }}
+    name: 'direct_workload_identity_federation'
+    runs-on: '${{ matrix.os }}'
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - 'ubuntu-latest'
+          - 'windows-latest'
+          - 'macos-latest'
+
+    permissions:
+      id-token: 'write'
+
+    steps:
+      - uses: 'actions/checkout@v4'
+
+#      - uses: 'actions/setup-node@v4'
+#        with:
+#          node-version: '20.x'
+#
+#      - name: 'npm build'
+#        run: 'npm ci && npm run build'
+
+      - id: 'auth-default'
+        name: 'auth-default'
+        uses: './'
+        with:
+          project_id: '${{ secrets.GOOGLE_PROJECT }}'
+          workload_identity_provider: '${{ secrets.WIF_PROVIDER_NAME }}'
+
+      - id: 'oauth-federated-token'
+        name: 'oauth-federated-token'
+        run: |-
+          curl https://secretmanager.googleapis.com/v1/projects/${{ steps.auth-default.outputs.project_id }}/secrets/${{ vars.SECRET_NAME }}/versions/latest:access \
+            --silent \
+            --show-error \
+            --fail \
+            --header "Authorization: Bearer ${{ steps.auth-default.outputs.auth_token }}"
+
+      - uses: 'google-github-actions/setup-gcloud@v2'
+        with:
+          version: '>= 363.0.0'
+
+      - name: 'gcloud'
+        run: |-
+          gcloud secrets versions access "latest" --secret "${{ vars.SECRET_NAME }}"
 
 #    - name: deploy to gke
 #      env:
