@@ -72,7 +72,7 @@ jobs:
 
       - id: 'auth-default'
         name: 'auth-default'
-#        uses: './'
+        uses: './'
         with:
           project_id: '${{ secrets.GOOGLE_PROJECT }}'
           workload_identity_provider: '${{ secrets.WIF_PROVIDER_NAME }}'
@@ -94,10 +94,10 @@ jobs:
         run: |-
           gcloud secrets versions access "latest" --secret "${{ vars.SECRET_NAME }}"
 
-#    - name: deploy to gke
-#      env:
-#        GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
-#      run: |
-#
-#        gcloud container clusters get-credentials eb-cluster --zone us-central1-a --project $GOOGLE_PROJECT
-#        kubectl apply -f helm-testing/py2.yaml
+    - name: deploy to gke
+      env:
+        GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
+      run: |
+
+        gcloud container clusters get-credentials eb-cluster --zone us-central1-a --project $GOOGLE_PROJECT
+        kubectl apply -f helm-testing/py2.yaml
