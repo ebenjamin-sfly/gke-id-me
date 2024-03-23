@@ -5,11 +5,11 @@ on:
   push:
     branches:
       - 'master'
-      - 'release/**/*'
+#      - 'release/**/*'
   pull_request:
     branches:
-      - 'main'
-      - 'release/**/*'
+      - 'master'
+#      - 'release/**/*'
   workflow_dispatch:
 
 concurrency:
@@ -57,8 +57,8 @@ jobs:
           - 'windows-latest'
           - 'macos-latest'
 
-    permissions:
-      id-token: 'write'
+#    permissions:
+#      id-token: 'write'
 
     steps:
       - uses: 'actions/checkout@v4'
