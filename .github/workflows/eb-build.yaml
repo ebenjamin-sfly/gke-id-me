@@ -1,92 +1,38 @@
-#name: Build image and deploy
-name: 'Test'
+name: Build image and deploy
 
 on:
   push:
     branches:
-      - 'master'
-#      - 'release/**/*'
-  pull_request:
-    branches:
-      - 'master'
-#      - 'release/**/*'
-  workflow_dispatch:
-
-concurrency:
-  group: '${{ github.workflow }}-${{ github.head_ref || github.ref }}'
-  cancel-in-progress: true
-
-defaults:
-  run:
-    shell: 'bash'
+    - 'master'
 
 jobs:
-  unit:
-    name: 'unit'
-    runs-on: 'ubuntu-latest'
-
+  deploy:
+    runs-on: ubuntu-latest
     steps:
-      - uses: 'actions/checkout@v4'
 
-      - uses: 'actions/setup-node@v4'
-        with:
-          node-version: '20.x'
+    - name: code checkout
+      uses: actions/checkout@v2
 
-        # Direct Workload Identity Federation
-        #
-  direct_workload_identity_federation:
-#    if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name }}
-    name: 'direct_workload_identity_federation'
-    runs-on: '${{ matrix.os }}'
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - 'ubuntu-latest'
-#          - 'windows-latest'
-#          - 'macos-latest'
-
-    permissions:
-      id-token: 'write'
-
-    steps:
-    - uses: 'actions/checkout@v4'
-
-    - uses: 'actions/setup-node@v4'
+    - name: install the gcloud cli
+      uses: google-github-actions/setup-gcloud@v0
       with:
-        node-version: '20.x'
-  #
-  #      - name: 'npm build'
-  #        run: 'npm ci && npm run build'
+        project_id: ${{ secrets.GOOGLE_PROJECT }}
+        service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+        install_components: 'gke-gcloud-auth-plugin'
+        export_default_credentials: true
 
-    - id: 'auth-default'
-      name: 'auth-default'
-      uses: './'
-      with:
-        project_id: '${{ secrets.GOOGLE_PROJECT }}'
-        workload_identity_provider: '${{ secrets.WIF_PROVIDER_NAME }}'
+    - name: build and push the docker image
+      env:
+        GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
+      run: |
+        gcloud auth configure-docker us-central1-docker.pkg.dev
+        docker build -f app/Dockerfile -t us-central1-docker.pkg.dev/$GOOGLE_PROJECT/py-gce-build/py-gce-build:latest .
+        docker push us-central1-docker.pkg.dev/$GOOGLE_PROJECT/py-gce-build/py-gce-build:latest
 
-    - id: 'oauth-federated-token'
-      name: 'oauth-federated-token'
-      run: |-
-        curl https://secretmanager.googleapis.com/v1/projects/${{ steps.auth-default.outputs.project_id }}/secrets/${{ vars.SECRET_NAME }}/versions/latest:access \
-          --silent \
-          --show-error \
-          --fail \
-          --header "Authorization: Bearer ${{ steps.auth-default.outputs.auth_token }}"
+    - name: deploy to gke
+      env:
+        GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
+      run: |
 
-    - uses: 'google-github-actions/setup-gcloud@v2'
-      with:
-        version: '>= 363.0.0'
-
-    - name: 'gcloud'
-      run: |-
-        gcloud secrets versions access "latest" --secret "${{ vars.SECRET_NAME }}"
-
-  - name: deploy to gke
-    env:
-      GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
-    run: |
-
-      gcloud container clusters get-credentials eb-cluster --zone us-central1-a --project $GOOGLE_PROJECT
-      kubectl apply -f helm-testing/py2.yaml
+        gcloud container clusters get-credentials eb-cluster --zone us-central1-a --project $GOOGLE_PROJECT
+        kubectl apply -f helm-testing/py2.yaml

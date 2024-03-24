@@ -18,6 +18,7 @@ try:
     # Set up MongoDB connection and collection
     # client = MongoClient("mongodb://ebenjamin:devops123@127.0.0.1:27017/admin?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.1.5")
     client = MongoClient("mongodb://ebenjamin:devops123@my-mongodb-0.my-mongodb-svc.mongodb.svc.cluster.local:27017/admin?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.1.5")
+    # print("User ebenjamin connected to MongoDB successfully!!!")
 
     # Create database named demo if they don't exist already
     db = client['store']
@@ -31,28 +32,32 @@ try:
         for k in x:
             if k == "index":
                 index_string = x["index"]
+
 except:
     print("Could not connect to MongoDB")
 
 @app.route('/', methods=['GET'])
 def home():
-    return render_template('index.html')
+    # return render_template('index.html')
+    return '<h1>' + index_string
 
 @app.route('/index.html', methods=['GET'])
 def index():
-    return '<h1>' + index_string
-    # return render_template('index.html')
+    # return '<h1>' + index_string
+    return render_template('index.html')
 
 # Get data from MongoDB route
 @app.route('/get_data', methods=['GET'])
 def get_data():
+    now = datetime.datetime.now()
     try:
-        now = datetime.datetime.now()
-        return '<h1>' + index_string + "  " +str(now)
+        for x in collection.find():
+            for k in x:
+                if k == "index":
+                    index_string = x["index"]
     except:
         return '<h1> Could not connect to MongoDB'
-    # return '<h1>' + index_string
-
+    return '<h1>' + index_string + "  " + str(now)
 @app.route('/get_ip')
 def get_ip():
     ip_addr = request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
@@ -60,15 +65,17 @@ def get_ip():
     return '<h1> Your IP address is:' + ip_addr + "  " +str(now)
 
 # Add data to MongoDB route
-@app.route('/post_data', methods=['POST'])
+@app.route('/post_data', methods=['GET','POST'])
 def post_data():
-    # Get data from request
-    data = request.json
+    if request.method == 'GET':
+        user_input = request.args.get('text', '')
 
-    # Insert data into MongoDB
-    collection.insert_one(data)
-
-    return 'Data added to MongoDB'
+        for x in collection.find():
+            myquery = {"index": x['index']}
+            newvalues = {"$set": {"index": user_input}}
+            collection.update_one(myquery, newvalues)
+    now = datetime.datetime.now()
+    return '<h1> Data added to MongoDB: ' + user_input + "  " +str(now)
 
 @app.route('/client')
 def client():
