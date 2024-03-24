@@ -35,4 +35,4 @@ jobs:
       run: |
 
         gcloud container clusters get-credentials eb-cluster --zone us-central1-a --project $GOOGLE_PROJECT
-        kubectl apply -f helm-testing/py2.yaml
+        kubectl apply -f helm/py2.yaml
