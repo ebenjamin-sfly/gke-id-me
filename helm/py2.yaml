@@ -19,6 +19,7 @@ spec:
         - name: py2
 #          image: 329082085800.dkr.ecr.us-east-2.amazonaws.com/py-aws-build:latest
           image: us-central1-docker.pkg.dev/iconic-star-416704/py-gce-build/py-gce-build:latest
+          imagePullPolicy: Always
           ports:
             - name: app-port
               containerPort: 5000
