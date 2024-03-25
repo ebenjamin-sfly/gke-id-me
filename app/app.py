@@ -3,6 +3,7 @@
 from flask import Flask, request, render_template
 from pymongo import MongoClient
 
+
 # Import Geocoder
 import geocoder
 import datetime
@@ -27,11 +28,14 @@ try:
     collection = db['strings']
     # print(collection.find())
 
-    # Get index string from MongoDB
-    for x in collection.find():
-        for k in x:
-            if k == "index":
-                index_string = x["index"]
+    def find_collections_data():
+        for x in collection.find():
+            for k in x:
+                if k == "index":
+                    index_string = x["index"]
+        return index_string
+
+    index_string = find_collections_data()
 
 except:
     print("Could not connect to MongoDB")
@@ -39,6 +43,7 @@ except:
 @app.route('/', methods=['GET'])
 def home():
     # return render_template('index.html')
+    index_string = find_collections_data()
     return '<h1>' + index_string
 
 @app.route('/index.html', methods=['GET'])
@@ -51,10 +56,7 @@ def index():
 def get_data():
     now = datetime.datetime.now()
     try:
-        for x in collection.find():
-            for k in x:
-                if k == "index":
-                    index_string = x["index"]
+        index_string = find_collections_data()
     except:
         return '<h1> Could not connect to MongoDB'
     return '<h1>' + index_string + "  " + str(now)
