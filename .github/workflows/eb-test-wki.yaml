@@ -1,0 +1,39 @@
+name: Access secret manager with WIF token
+
+on:
+  push:
+    branches:
+    - 'master'
+
+jobs:
+  deploy:
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    runs-on: ubuntu-latest
+    steps:
+    - name: code checkout
+      uses: actions/checkout@v3
+
+    - id: 'auth'
+      name: 'Authenticate Google Cloud'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        project_id: 'iconic-star-416704'
+        workload_identity_provider: 'projects/721141404780/locations/global/workloadIdentityPools/github-actions-pool2/providers/auth'
+
+    - name: install the gcloud cli
+      uses: google-github-actions/setup-gcloud@v1
+#      with:
+#        project_id: ${{ secrets.GOOGLE_PROJECT }}
+#        service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+#        install_components: 'gke-gcloud-auth-plugin'
+#        export_default_credentials: true
+
+    - id: 'gcloud'
+    - name: Access secret manager
+#      env:
+#        GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
+      run: |
+        gcloud secrets versions access "latest" --secret "eb-secret"
