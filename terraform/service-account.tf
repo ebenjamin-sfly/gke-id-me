@@ -13,6 +13,7 @@ resource "google_project_iam_member" "service-a" {
     "roles/logging.logWriter",
     "roles/monitoring.metricWriter",
     "roles/stackdriver.resourceMetadata.writer",
+    "roles/secretmanager.secretAccessor",
   ])
   project = "iconic-star-416704"
   #  project = "devops-v4"

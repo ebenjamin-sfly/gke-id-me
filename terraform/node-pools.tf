@@ -51,6 +51,10 @@ resource "google_container_node_pool" "spot" {
     #    machine_type = "e2-standard-2"
     #    machine_type = "e2-standard-4"
     machine_type = "c3-standard-4-lssd"
+    # Following is required for local SSD disk VMs
+    ephemeral_storage_local_ssd_config {
+      local_ssd_count = 1
+    }
 
     labels = {
       team = "devops"
