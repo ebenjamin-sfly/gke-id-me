@@ -29,5 +29,9 @@ jobs:
 
     - id: 'gcloud'
       name: Access secret manager
-      run: |
-        gcloud secrets versions access "latest" --secret "eb-secret"
+      run: |-
+        curl https://secretmanager.googleapis.com/v1/projects/my-project/secrets/my-secret/versions/1:access \
+          --header "Authorization: Bearer ${{ steps.auth.outputs.access_token }}"
+#      run: |
+#
+#        gcloud secrets versions access "latest" --secret "eb-secret"
