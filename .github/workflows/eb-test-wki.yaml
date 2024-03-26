@@ -26,6 +26,6 @@ jobs:
       uses: google-github-actions/setup-gcloud@v1
 
     - id: 'gcloud'
-    - name: Access secret manager
+      name: Access secret manager
       run: |
         gcloud secrets versions access "latest" --secret "eb-secret"
