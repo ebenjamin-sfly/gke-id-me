@@ -1,15 +1,15 @@
-#name: Access secret manager with WIF token
-#
-#on:
-#  push:
-#    branches:
-#    - 'master'
+name: Access secret manager with WIF token
+
+on:
+  push:
+    branches:
+    - 'master'
 
 jobs:
   deploy:
-    permissions:
-      contents: 'read'
-      id-token: 'write'
+#    permissions:
+#      contents: 'read'
+#      id-token: 'write'
     runs-on: ubuntu-latest
     steps:
     - name: code checkout
