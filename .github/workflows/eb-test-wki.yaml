@@ -11,7 +11,7 @@ jobs:
       contents: 'read'
       id-token: 'write'
 
-    runs-on: ubuntu-latest
+#    runs-on: ubuntu-latest
     steps:
     - name: code checkout
       uses: actions/checkout@v3
@@ -33,7 +33,5 @@ jobs:
 
     - id: 'gcloud'
     - name: Access secret manager
-#      env:
-#        GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
       run: |
         gcloud secrets versions access "latest" --secret "eb-secret"
