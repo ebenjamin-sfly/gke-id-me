@@ -22,7 +22,7 @@ jobs:
       with:
         project_id: 'iconic-star-416704'
         workload_identity_provider: 'projects/721141404780/locations/global/workloadIdentityPools/github-actions-pool2/providers/auth'
-        service_account: 'service-a@iconic-star-416704.iam.gserviceaccount.com'
+        service_account: 'service-wki@iconic-star-416704.iam.gserviceaccount.com'
 
     - name: install the gcloud cli
       uses: google-github-actions/setup-gcloud@v1
