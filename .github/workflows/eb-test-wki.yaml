@@ -1,9 +1,9 @@
-name: Access secret manager with WIF token
-
-on:
-  push:
-    branches:
-    - 'master'
+#name: Access secret manager with WIF token
+#
+#on:
+#  push:
+#    branches:
+#    - 'master'
 
 jobs:
   deploy:
