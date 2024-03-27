@@ -20,9 +20,11 @@ jobs:
       name: 'Authenticate Google Cloud'
       uses: 'google-github-actions/auth@v1'
       with:
-        project_id: 'iconic-star-416704'
+        token_format: 'access_token'
+#        project_id: 'iconic-star-416704'
         workload_identity_provider: 'projects/721141404780/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
-        service_account: 'service-a@iconic-star-416704.iam.gserviceaccount.com'
+        service_account: 'github-actions-sa@iconic-star-416704.iam.gserviceaccount.com'
+#        service_account: 'service-a@iconic-star-416704.iam.gserviceaccount.com'
 #        token_format: 'access_token'
 
     - name: install the gcloud cli
@@ -40,10 +42,10 @@ jobs:
 #        gcloud container clusters get-credentials eb-cluster --zone us-central1-a --project $GOOGLE_PROJECT
 #        kubectl get pods
 
-#    - id: 'gcloud'
-#      name: Access secret manager
+    - id: 'gcloud'
+      name: Access secret manager
 #      run: |-
 #        curl https://secretmanager.googleapis.com/v1/projects/iconic-star-416704/secrets/eb-secret/versions/1:access \
 #          --header "Authorization: Bearer ${{ steps.auth.outputs.access_token }}"
-#      run: |
-#        gcloud secrets versions access "latest" --secret "eb-secret"
+      run: |
+        gcloud secrets versions access "latest" --secret "eb-secret"
