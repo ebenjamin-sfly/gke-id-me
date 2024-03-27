@@ -26,6 +26,7 @@ jobs:
         service_account: 'github-actions-sa@iconic-star-416704.iam.gserviceaccount.com'
 #        service_account: 'service-a@iconic-star-416704.iam.gserviceaccount.com'
 #        token_format: 'access_token'
+        id_token_include_email: true
 
     - name: install the gcloud cli
       uses: google-github-actions/setup-gcloud@v1
