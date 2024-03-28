@@ -24,7 +24,9 @@ jobs:
         project_id: 'iconic-star-416704'
         workload_identity_provider: 'projects/721141404780/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
         service_account: 'github-actions-sa@iconic-star-416704.iam.gserviceaccount.com'
-        credentials_json: '${{ GOOGLE_APPLICATION_CREDENTIALS }}'
+#        credentials_json: '${{ GOOGLE_APPLICATION_CREDENTIALS }}'
+        with:
+          credentials_json: '${{ GOOGLE_APPLICATION_CREDENTIALS }}'
 
 #        service_account: 'service-a@iconic-star-416704.iam.gserviceaccount.com'
 #        token_format: 'access_token'
