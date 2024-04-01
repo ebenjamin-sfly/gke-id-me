@@ -31,7 +31,7 @@ jobs:
 #          credentials_json: '${{ GOOGLE_APPLICATION_CREDENTIALS }}'
 
 #        service_account: 'service-a@iconic-star-416704.iam.gserviceaccount.com'
-#        token_format: 'access_token'
+        token_format: 'access_token'
 #        id_token_include_email: true
 
     - name: install the gcloud cli
