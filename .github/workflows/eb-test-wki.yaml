@@ -20,7 +20,7 @@ jobs:
       name: 'Authenticate Google Cloud'
       uses: 'google-github-actions/auth@v2'
       with:
-#        token_format: 'id_token'
+        token_format: 'id_token'
 #        id_token_audience: 'https://secretmanager.googleapis.com/'
 #        id_token_include_email: true
         project_id: 'iconic-star-416704'
@@ -31,7 +31,7 @@ jobs:
 #          credentials_json: '${{ GOOGLE_APPLICATION_CREDENTIALS }}'
 
 #        service_account: 'service-a@iconic-star-416704.iam.gserviceaccount.com'
-        token_format: 'access_token'
+#        token_format: 'access_token'
 #        id_token_include_email: true
 
     - name: install the gcloud cli
