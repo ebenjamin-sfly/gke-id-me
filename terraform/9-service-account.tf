@@ -14,6 +14,7 @@ resource "google_project_iam_member" "service-a" {
     "roles/monitoring.metricWriter",
     "roles/stackdriver.resourceMetadata.writer",
     "roles/secretmanager.secretAccessor",
+    "roles/iam.serviceAccountTokenCreator",
   ])
   project = "iconic-star-416704"
   #  project = "devops-v4"

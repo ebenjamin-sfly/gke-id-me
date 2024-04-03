@@ -19,6 +19,8 @@ try:
     # Set up MongoDB connection and collection
     # client = MongoClient("mongodb://ebenjamin:devops123@127.0.0.1:27017/admin?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.1.5")
     client = MongoClient("mongodb://ebenjamin:devops123@my-mongodb-0.my-mongodb-svc.mongodb.svc.cluster.local:27017/admin?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.1.5")
+    # With TLS cert and key
+    # client = MongoClient("mongodb://ebenjamin:devops123@my-mongodb-0.my-mongodb-svc.mongodb.svc.cluster.local:27017/admin?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.1.5")
     # print("User ebenjamin connected to MongoDB successfully!!!")
 
     # Create database named demo if they don't exist already
