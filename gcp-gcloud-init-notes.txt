@@ -1,0 +1,203 @@
+Google Cloud CLI access:
+=======================
+1. Check GCP CLI access with gcloud
+# gloud info ( will check cli configs and email used)
+# gcloud init ( to initialize configs)
+# gcloud auth application-default login
+# gcloud container clusters get-credentials CLUSTER_NAME \
+    --region=COMPUTE_REGION
+
+From Kubernetes Engine > Clusters > select cluster > click CONNECT on the top
+# gcloud container clusters get-credentials eb-cluster --zone us-central1-a --project iconic-star-416704
+
+Authorization and Credentials
+Grant and revoke authorization to the gcloud CLI and manage credentials.
+
+gcloud auth login: Authorize Google Cloud access for the gcloud CLI with Google Cloud user credentials and set the current account as active.
+gcloud auth activate-service-account: Authorize Google Cloud access similar to gcloud auth login but with service account credentials.
+gcloud auth application-default: Manage your Application Default Credentials (ADC) for Cloud Client Libraries.
+gcloud auth list: List all credentialed accounts.
+gcloud auth print-access-token: Display the current account's access token.
+gcloud auth revoke: Remove access credentials for an account.
+
+Google Cloud CLI access check:
+=============================
+gcloud info - prints all the components, versions etc.
+gcloud auth list - List accounts whose credentials are stored on the local system
+gcloud auth application-default login - acquire new user credentials to use for Application Default Credentials (such as kubectl)
+		Credentials saved to file: [/Users/eappanbenjamin/.config/gcloud/application_default_credentials.json]
+
+Authorizing the cluster:
+========================
+gcloud container clusters get-credentials eb-cluster --zone us-central1-a --project iconic-star-416704
+Fetching cluster endpoint and auth data.
+kubeconfig entry generated for eb-cluster
+
+
+NGINX ingress install:
+=====================
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+helm search repo nginx
+
+Mongodb Secrets:
+================
+k get secrets -n mongodb my-mongodb-admin-admin-user -o yaml
+
+# Copy connection string hash from the connection sting from command above. 
+echo "bW9uZ29kYjovL2FkbWluLXVzZXI6YWRtaW4xMjNAbXktbW9uZ29kYi0wLm15LW1vbmdvZGItc3ZjLm1vbmdvZGIuc3ZjLmNsdXN0ZXIubG9jYWw6MjcwMTcsbXktbW9uZ29kYi0xLm15LW1vbmdvZGItc3ZjLm1vbmdvZGIuc3ZjLmNsdXN0ZXIubG9jYWw6MjcwMTcvYWRtaW4/c3NsPWZhbHN" | base64 -d
+mongodb://admin-user:admin123@my-mongodb-0.my-mongodb-svc.mongodb.svc.cluster.local:27017,my-mongodb-1.my-mongodb-svc.mongodb.svc.cluster.local:27017
+
+k get secrets -n mongodb my-mongodb-admin-admin-user -o json  |jq -r '.data | with_entries(.value |= @base64d)'
+
+Connecting to MongoDB as admin-user:
+===================================
+1. Port forward from a terminal window:
+kubectl port-forward my-mongodb-0 27017 -n mongodb
+
+2. Connect to MongoDb from another window
+mongosh "mongodb://admin-user:admin123@127.0.0.1:27017/admin?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.1.5"
+
+y-mongodb [direct: primary] admin> db.createUser(
+  {
+    user: 'ebenjamin',
+    pwd: 'devops123',
+    roles: [ { role: 'readWrite', db: 'store' } ]
+  }
+);
+
+y-mongodb [direct: primary] admin> db.auth('ebenjamin', 'devops123')
+y-mongodb [direct: primary] admin> use store
+y-mongodb [direct: primary] admin> db.employees.insertOne({name: "Eappan"})
+my-mongodb [direct: secondary] admin> db.auth('admin-user', 'admin123')
+
+Remove user:
+=============
+> use admin
+> db.dropUser("ebenjamin")
+
+my-mongodb [direct: primary] store> db.strings.findOne()
+{ _id: ObjectId('660b5bc167091b83c687c868'), index: 'Eappan' }
+
+Create Collection:
+=====================
+db.createCollection("strings") 
+
+Connecting to MongoDB using TLS certs:
+======================================
+1. Port forward
+2.
+mongosh \
+  --tls \
+  --tlsCAFile /var/lib/tls/ca/ca.crt \
+  --tlsCertificateKeyFile /var/lib/tls/server/*.pem \
+  "mongodb+srv://admin-user:admin123@127.0.0.1:27017/admin?ssl=true"
+
+GCP Docker image artifactory build and setups:
+=============================================
+1. Create GCP image artifactory "py-gce-build"
+2. Enable API and auth
+gcloud auth configure-docker us-central1-docker.pkg.dev
+
+docker build -t py-gce-build .
+docker tag py-gce-build:latest us-central1-docker.pkg.dev/iconic-star-416704/py-gce-build/py-gce-build:latest
+docker push us-central1-docker.pkg.dev/iconic-star-416704/py-gce-build/py-gce-build:latest
+
+Service accounts and bindings:
+==============================
+1. k get sa 
+eb-sa - kubectl SA
+
+2. Create google SA
+gcloud iam service-accounts create service-wki --project iconic-star-416704
+ 
+3. gcloud iam service-accounts list
+DISPLAY NAME:
+EMAIL: service-wki@iconic-star-416704.iam.gserviceaccount.com
+DISABLED: False
+
+3. Give IAM Service Account the permission to the resource artifact registry artifacts 
+gcloud artifacts repositories add-iam-policy-binding py-gce-build --member='serviceAccount:service-wki@iconic-star-416704.iam.gserviceaccount.com' --role='roles/artifactregistry.repoAdmin' --location us-central1
+ 
+( OR role=roles/artifactregistry.admin)
+
+4. Bind the kubernetes SA and the google SA 
+
+gcloud iam service-accounts add-iam-policy-binding service-wki@iconic-star-416704.iam.gserviceaccount.com --role="roles/iam.workloadIdentityUser" --member serviceAccount:iconic-star-416704.svc.id.goog[default/eb-sa]"
+
+4a. List gcloud SA IAM policies:
+gcloud iam service-accounts get-iam-policy service-wki@iconic-star-416704.iam.gserviceaccount.com ( Will list the bindings and members). 
+
+5. Annotate Kubernetes SA with GCP SA
+k annotate serviceaccount eb-sa iam.gke.io/gcp-service-account=service-wki@iconic-star-416704.iam.gserviceaccount.com 
+
+6. k describe sa eb-sa
+
+Direct Workload Identity Federation Configuration:
+==================================================
+In this setup, the Workload Identity Pool has direct IAM permissions on Google Cloud resources; there are no intermediate service accounts or keys. This is preferred since it directly authenticates GitHub Actions to Google Cloud without a proxy resource.
+
+1. Create WI pool:
+# TODO: replace ${PROJECT_ID} with your value below.
+gcloud iam workload-identity-pools create "github" --project="${PROJECT_ID}" --location="global" --display-name="GitHub Actions Pool"
+
+2. List or describe WIP
+gcloud iam workload-identity-pools list --location="global"
+projects/721141404780/locations/global/workloadIdentityPools/github
+
+gcloud iam workload-identity-pools describe "github" --project="${PROJECT_ID}" --location="global" --format="value(name)"
+projects/721141404780/locations/global/workloadIdentityPools/github
+
+3. Create OIDC provider:
+ gcloud iam workload-identity-pools providers create-oidc "my-repo" --project="${PROJECT_ID}" --location="global" --workload-identity-pool="github" --display-name="My GitHub repo Provider" --attribute-mapping="google.subject=assertion.sub,attribute.actor=assertion.actor,attribute.repository=assertion.repository,attribute.repository_owner=assertion.repository_owner" --attribute-condition="assertion.repository_owner == '${GITHUB_ORG}'" --issuer-uri="https://token.actions.githubusercontent.com"
+
+4. List OIDC provider
+gcloud iam workload-identity-pools providers list --workload-identity-pool="github" --location="global"
+---
+attributeCondition: assertion.repository_owner == '105083987'
+attributeMapping:
+  attribute.actor: assertion.actor
+  attribute.repository: assertion.repository
+  attribute.repository_owner: assertion.repository_owner
+  google.subject: assertion.sub
+displayName: My GitHub repo Provider
+name: projects/721141404780/locations/global/workloadIdentityPools/github/providers/my-repo
+oidc:
+  issuerUri: https://token.actions.githubusercontent.com
+state: ACTIVE
+
+5. Create IAM binding between the gcloud service account and the GitHub IAM repository
+
+gcloud iam service-accounts add-iam-policy-binding service-wki@iconic-star-416704.iam.gserviceaccount.com --project=iconic-star-416704 --role="roles/iam.workloadIdentityUser" --member="principalSet://iam.googleapis.com/${WORKLOAD_IDENTITY_POOL_ID}/attribute.repository/${REPO}"
+
+REPO=eb-org/gke-id-me
+WORKLOAD_IDENTITY_POOL_ID=projects/721141404780/locations/global/workloadIdentityPools/github (721141404780 is the IAM project number of the GCP project)
+
+gcloud iam service-accounts get-iam-policy service-wki@iconic-star-416704.iam.gserviceaccount.com
+bindings:
+- members:
+  - principalSet://iam.googleapis.com/projects/721141404780/locations/global/workloadIdentityPools/github/attribute.repository/eb-org/gke-id-me
+  - serviceAccount:iconic-star-416704.svc.id.goog[default/eb-sa]
+  - serviceAccount:iconic-star-416704.svc.id.goog[default/service-wki]
+  role: roles/iam.workloadIdentityUser
+etag: BwYUhYtb3rQ=
+version: 1
+
+5. Give access to the secret manager:
+
+# ${REPO} is the full repo name including the parent GitHub organization,
+# such as "my-org/my-repo".
+#
+# ${WORKLOAD_IDENTITY_POOL_ID} is the full pool id, such as
+# "projects/123456789/locations/global/workloadIdentityPools/github".
+
+Make sure the following variables are set differently than set above:
+WORKLOAD_IDENTITY_POOL_ID="projects/721141404780/locations/global/workloadIdentityPools/github"
+(Upto the gitHub folder path)
+REPO=eb-org/gke-id-me
+
+gcloud secrets add-iam-policy-binding "eb-secret" --project="${PROJECT_ID}" --role="roles/secretmanager.secretAccessor" --member="principalSet://iam.googleapis.com/${WORKLOAD_IDENTITY_POOL_ID}/attribute.repository/${REPO}"
+
+Remove IAM SA policy binding:
+=============================
+gcloud iam service-accounts remove-iam-policy-binding "github-actions-sa@${PROJECT_ID}.iam.gserviceaccount.com" --role="roles/iam.workloadIdentityUser" --member='principalSet://iam.googleapis.com/projects/721141404780/locations/global/workloadIdentityPools/github-pool/attribute.repository/ebenjamin-sfly/gke-id-me'

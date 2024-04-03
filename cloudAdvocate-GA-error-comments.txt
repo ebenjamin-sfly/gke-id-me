@@ -1,0 +1,27 @@
+Github actions workflow fails with service account has following roles: roles/iam.serviceAccountTokenCreator, roles/iam.serviceAccountOpenIdTokenCreator
+
+With these lines in worflow config file:
+    - id: 'auth'
+      name: 'Authenticate Google Cloud'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        token_format: 'id_token'
+        id_token_audience: 'https://secretmanager.googleapis.com/'
+
+Error: google-github-actions/auth failed with: failed to generate Google Cloud OpenID Connect ID token for github-actions-sa@iconic-star-416704.iam.gserviceaccount.com: {
+  "error": {
+    "code": 403,
+    "message": "Permission 'iam.serviceAccounts.getOpenIdToken' denied on resource (or it may not exist).",
+    "status": "PERMISSION_DENIED",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "IAM_PERMISSION_DENIED",
+        "domain": "iam.googleapis.com",
+        "metadata": {
+          "permission": "iam.serviceAccounts.getOpenIdToken"
+        }
+      }
+    ]
+  }
+}
