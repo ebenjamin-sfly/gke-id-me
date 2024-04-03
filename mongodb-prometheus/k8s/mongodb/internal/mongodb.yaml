@@ -31,8 +31,8 @@ spec:
     - horizon: my-mongodb-2.devopsbyexample.io:27017
   security:
     tls:
-      enabled: false
-#      enabled: true
+#      enabled: false
+      enabled: true
       certificateKeySecretRef:
         name: mongodb-key-pair
       caCertificateSecretRef:

@@ -19,8 +19,10 @@ spec:
         image: percona/mongodb_exporter:0.39
 #        image: percona/mongodb_exporter:0.30
         args:
-        - --mongodb.direct-connect=true
-        - --mongodb.uri=mongodb://admin-user:admin123@my-mongodb-0.my-mongodb-svc.mongodb.svc.cluster.local:27017/admin?ssl=false
+#        - --mongodb.direct-connect=true
+#        - --mongodb.uri=mongodb://admin-user:admin123@my-mongodb-0.my-mongodb-svc.mongodb.svc.cluster.local:27017/admin?ssl=true
+#        - --mongodb.uri=mongodb://admin-user:admin123@my-mongodb-0.my-mongodb-svc.mongodb.svc.cluster.local:27017/admin?ssl=false
+        - --mongodb.uri=mongodb+srv://admin-user:admin123@my-mongodb-0.my-mongodb-svc.mongodb.svc.cluster.local/admin?ssl=true&tlsCAFile=/var/lib/tls/ca/ca.crt&tlsCertificateKeyFile=/var/lib/tls/server/certificateKey.pem
         - --compatible-mode
         - "--collect-all"
 #          - "--mongodb.direct-connect=true"
@@ -29,7 +31,8 @@ spec:
 #          - "--mongodb.uri=mongodb://admin-user:admin123@my-mongodb-0.my-mongodb-svc.mongodb.svc.cluster.local:27017/admin?ssl=false"
 #          - "--mongodb.uri=mongodb://admin-user:admin123@my-mongodb-0.my-mongodb-svc.mongodb.svc.cluster.local:27017,my-mongodb-1.my-mongodb-svc.mongodb.svc.cluster.local:27017/admin?ssl=false"
 #          - "--mongodb.uri=mongodb:ebenjamin:devops123@my-mongodb-0.my-mongodb-svc.mongodb.svc.cluster.local:27017/admin?ssl=false"
-#        - "--mongodb.uri=mongodb+srv://admin-user:admin123@my-mongodb-svc.mongodb.svc.cluster.local/admin?ssl=true&tlsCAFile=/var/lib/tls/ca/ca.crt&tlsCertificateKeyFile=/var/lib/tls/server/certificateKey.pem"
+#        - "--mongodb.uri=mongodb://admin-user:admin123@my-mongodb-0.my-mongodb-svc.mongodb.svc.cluster.local:27017/admin?ssl=true&tlsCAFile=/var/lib/tls/ca/ca.crt&tlsCertificateKeyFile=/var/lib/tls/server/certificateKey.pem"
+#        - "--mongodb.uri=mongodb+srv://admin-user:admin123@my-mongodb-0.my-mongodb-svc.mongodb.svc.cluster.local/admin?ssl=true&tlsCAFile=/var/lib/tls/ca/ca.crt&tlsCertificateKeyFile=/var/lib/tls/server/certificateKey.pem"
 #          - "--collect-all"
         ports:
         - name: metrics
@@ -38,20 +41,21 @@ spec:
           requests:
             memory: 128Mi
             cpu: 250m
-#        volumeMounts:
-#        - mountPath: /var/lib/tls/ca/
-#          name: tls-ca
-#          readOnly: true
-#        - mountPath: /var/lib/tls/server/certificateKey.pem
-#          name: tls-secret
+        volumeMounts:
+        - mountPath: /var/lib/tls/ca/
+          name: tls-ca
+          readOnly: true
+        - mountPath: /var/lib/tls/server/certificateKey.pem
+          name: tls-secret
+          subPathExpr: a14cc3f5511ae1555ea6ea3c481ca4d23a13cdc2487e11967782add80a8f4092.pem
 #          subPathExpr: 847a4797b0b13045ba3c76ff71dd689334b2f15b25857791c0e88ac39983d03e.pem
-#          readOnly: true
-#      volumes:
-#      - name: tls-ca
-#        secret:
-#          defaultMode: 416
-#          secretName: mongodb-external-key-pair
-#      - name: tls-secret
-#        secret:
-#          defaultMode: 416
-#          secretName: my-mongodb-server-certificate-key
+          readOnly: true
+      volumes:
+      - name: tls-ca
+        secret:
+          defaultMode: 416
+          secretName: mongodb-external-key-pair
+      - name: tls-secret
+        secret:
+          defaultMode: 416
+          secretName: my-mongodb-server-certificate-key

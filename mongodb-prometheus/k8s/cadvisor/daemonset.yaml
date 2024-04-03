@@ -16,21 +16,21 @@ spec:
         name: cadvisor
     spec:
       serviceAccountName: cadvisor
-      priorityClassName: system-node-critical
-      tolerations:
-        - key: "CriticalAddonsOnly"
-          operator: "Exists"
+#      priorityClassName: system-node-critical
+#      tolerations:
+#        - key: "CriticalAddonsOnly"
+#          operator: "Exists"
       containers:
       - name: cadvisor
         image: gcr.io/cadvisor/cadvisor:v0.43.0
         resources:
           requests:
-            memory: 400Mi
-            cpu: 400m
+            memory: 200Mi
+            cpu: 100m
           limits:
-            memory: 500Mi
+            memory: 300Mi
 #            memory: 2000Mi
-            cpu: 500m
+            cpu: 200m
 #            cpu: 800m
         volumeMounts:
         - name: rootfs
