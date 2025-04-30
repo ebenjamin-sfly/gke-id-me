@@ -27,6 +27,15 @@ resource "google_container_node_pool" "general" {
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform"
     ]
+    # EB added resource_labels & kubelet_config
+    resource_labels = {
+      "goog-gke-node-pool-provisioning-model" = "on-demand"
+    }
+    kubelet_config {
+      cpu_manager_policy = ""
+      cpu_cfs_quota      = false
+      pod_pids_limit     = 0
+    }
   }
 }
 
@@ -40,11 +49,12 @@ resource "google_container_node_pool" "spot" {
   }
 
   autoscaling {
-    min_node_count = 2
+    min_node_count = 1
     max_node_count = 10
   }
 
   node_config {
+    spot = true
     #    preemptible  = true
     #    machine_type = "e2-small"
     #    machine_type = "e2-medium"
@@ -71,5 +81,14 @@ resource "google_container_node_pool" "spot" {
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform"
     ]
+    # EB added resource_labels & kubelet_config
+    resource_labels = {
+      "goog-gke-node-pool-provisioning-model" = "spot"
+    }
+    kubelet_config {
+      cpu_manager_policy = ""
+      cpu_cfs_quota      = false
+      pod_pids_limit     = 0
+    }
   }
 }

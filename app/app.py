@@ -3,7 +3,6 @@
 from flask import Flask, request, render_template
 from pymongo import MongoClient
 
-
 # Import Geocoder
 import geocoder
 import datetime
@@ -38,9 +37,12 @@ try:
         return index_string
 
     index_string = find_collections_data()
+    print(index_string)
 
 except:
     print("Could not connect to MongoDB")
+    index_string = None
+    print(index_string)
 
 @app.route('/', methods=['GET'])
 def home():

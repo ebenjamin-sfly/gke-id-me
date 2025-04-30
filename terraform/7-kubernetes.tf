@@ -14,7 +14,8 @@ resource "google_container_cluster" "primary" {
 
   # Optional, if you want multi-zonal cluster
   node_locations = [
-    "us-central1-b", "us-central1-c"
+    "us-central1-b"
+    # "us-central1-b", "us-central1-c"
   ]
 
   addons_config {
@@ -31,7 +32,8 @@ resource "google_container_cluster" "primary" {
   }
 
   workload_identity_config {
-    workload_pool = "iconic-star-416704.svc.id.goog"
+    workload_pool = "eappanb3.svc.id.goog"
+    # workload_pool = "iconic-star-416704.svc.id.goog"
     #    workload_pool = "devops-v4.svc.id.goog"
   }
 
